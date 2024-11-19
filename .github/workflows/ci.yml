@@ -21,6 +21,9 @@ jobs:
 
       - name: Install Bundler (user install)
         run: gem install bundler --user-install
+        
+      - name: Clear Bundler cache
+        run: bundle clean --force
 
       - name: Add user-installed gems to PATH
         run: echo 'export PATH="$HOME/.gem/ruby/$(ls $HOME/.gem/ruby)/bin:$PATH"' >> $GITHUB_ENV
