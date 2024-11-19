@@ -11,32 +11,30 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # ติดตั้งแพ็กเกจที่จำเป็น
       - name: Install packages
         run: sudo apt-get update && sudo apt-get install --no-install-recommends -y google-chrome-stable curl libjemalloc2 libvips sqlite3
 
-      # เช็คเอาท์โค้ดจาก repository
       - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Install Bundler (user install)
         run: gem install bundler --user-install
-        
-      - name: Clear Bundler cache
-        run: bundle clean --force
 
       - name: Add user-installed gems to PATH
         run: echo 'export PATH="$HOME/.gem/ruby/$(ls $HOME/.gem/ruby)/bin:$PATH"' >> $GITHUB_ENV
 
-
-      # ตั้งค่า Ruby และ Bundler
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: 3.3.3
           bundler-cache: true
 
-      # รันการทดสอบ RSpec
+      - name: Install Dependencies
+        run: bundle install
+
+      - name: Clear Bundler cache
+        run: bundle clean --force
+
       - name: Run RSpec tests
         env:
           RAILS_ENV: test
@@ -46,7 +44,6 @@ jobs:
         continue-on-error: true
         id: rspec-tests
 
-      # สร้างข้อความสถานะ
       - name: Post test result comment
         if: always()
         uses: actions/github-script@v7
@@ -57,7 +54,6 @@ jobs:
               ? ":white_check_mark: All tests passed! :tada:"
               : ":x: Some tests failed. Please check the details.";
 
-            // สร้างคอมเมนต์เฉพาะใน Pull Request
             if (context.payload.pull_request) {
               github.rest.issues.createComment({
                 issue_number: context.payload.pull_request.number,
