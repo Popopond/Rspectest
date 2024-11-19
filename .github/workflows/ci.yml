@@ -18,12 +18,15 @@ jobs:
       # เช็คเอาท์โค้ดจาก repository
       - name: Checkout code
         uses: actions/checkout@v4
+        
+      - name: Update Bundler
+        run: gem install bundler
 
       # ตั้งค่า Ruby และ Bundler
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: .ruby-version
+          ruby-version: 3.3.3
           bundler-cache: true
 
       # รันการทดสอบ RSpec
