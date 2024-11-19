@@ -403,6 +403,8 @@ DEPENDENCIES
   importmap-rails
   jbuilder
   kamal
+  net-pop (= 0.1.2)
+  net-protocol
   propshaft
   puma (>= 5.0)
   rails (~> 8.0.0)

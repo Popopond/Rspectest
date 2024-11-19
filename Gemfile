@@ -63,5 +63,7 @@ group :test do
   gem "capybara"
   gem "selenium-webdriver"
 end
+gem 'net-pop', '0.1.2'
+gem 'net-protocol', '>= 0'
 
 gem "devise", "~> 4.9"
