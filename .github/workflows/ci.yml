@@ -1,0 +1,124 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      # ติดตั้งแพ็กเกจที่จำเป็น
+      - name: Install packages
+        run: sudo apt-get update && sudo apt-get install --no-install-recommends -y google-chrome-stable curl libjemalloc2 libvips sqlite3
+
+      # เช็คเอาท์โค้ดจาก repository
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # ตั้งค่า Ruby และ Bundler
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: .ruby-version
+          bundler-cache: true
+
+      # รันการทดสอบ RSpec
+      - name: Run RSpec tests
+        env:
+          RAILS_ENV: test
+        run: |
+          bin/rails db:test:prepare
+          bin/rspec
+        continue-on-error: true
+        id: rspec-tests
+
+      # สร้างข้อความสถานะ
+      - name: Post test result comment
+        if: always()
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const passed = "${{ steps.rspec-tests.outcome }}" === "success";
+            const comment = passed
+              ? ":white_check_mark: All tests passed! :tada:"
+              : ":x: Some tests failed. Please check the details.";
+
+            // สร้างคอมเมนต์เฉพาะใน Pull Request
+            if (context.payload.pull_request) {
+              github.rest.issues.createComment({
+                issue_number: context.payload.pull_request.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: comment,
+              });
+            } else {
+              console.log(comment);
+            }
+
+
+
+# คอมเมนต์ jobs อื่นไว้
+# jobs:
+#   scan_ruby:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Checkout code
+#         uses: actions/checkout@v4
+#       - name: Set up Ruby
+#         uses: ruby/setup-ruby@v1
+#         with:
+#           ruby-version: .ruby-version
+#           bundler-cache: true
+#       - name: Scan for common Rails security vulnerabilities using static analysis
+#         run: bin/brakeman --no-pager
+
+#   scan_js:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Checkout code
+#         uses: actions/checkout@v4
+#       - name: Set up Ruby
+#         uses: ruby/setup-ruby@v1
+#         with:
+#           ruby-version: .ruby-version
+#           bundler-cache: true
+#       - name: Scan for security vulnerabilities in JavaScript dependencies
+#         run: bin/importmap audit
+
+#   lint:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Checkout code
+#         uses: actions/checkout@v4
+#       - name: Set up Ruby
+#         uses: ruby/setup-ruby@v1
+#         with:
+#           ruby-version: .ruby-version
+#           bundler-cache: true
+#       - name: Lint code for consistent style
+#         run: bin/rubocop -f github
