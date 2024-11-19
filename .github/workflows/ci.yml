@@ -60,7 +60,7 @@ jobs:
       # สร้างข้อความสถานะ
       - name: Post test result comment
         if: always()
-        uses: actions/github-script@v6
+        uses: actions/github-script@v7
         with:
           script: |
             const passed = "${{ steps.rspec-tests.outcome }}" === "success";
