@@ -63,6 +63,4 @@ group :test do
   gem "capybara"
   gem "selenium-webdriver"
 end
-gem 'yard', '~> 0.9.37'
-
 gem "devise", "~> 4.9"
