@@ -18,9 +18,13 @@ jobs:
       # เช็คเอาท์โค้ดจาก repository
       - name: Checkout code
         uses: actions/checkout@v4
-        
-      - name: Update Bundler
-        run: gem install bundler
+
+      - name: Install Bundler (user install)
+        run: gem install bundler --user-install
+
+      - name: Add user-installed gems to PATH
+        run: echo 'export PATH="$HOME/.gem/ruby/$(ls $HOME/.gem/ruby)/bin:$PATH"' >> $GITHUB_ENV
+
 
       # ตั้งค่า Ruby และ Bundler
       - name: Set up Ruby
