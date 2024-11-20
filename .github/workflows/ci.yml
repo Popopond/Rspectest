@@ -30,32 +30,27 @@ jobs:
         continue-on-error: true
         id: test-results
 
-      - name: Post test result comment
+      - name: Post test result comment with Ruby
         if: always()
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const passed = "${{ steps.test-results.outcome }}" === "success";
-            const comment = passed
-              ? ":white_check_mark: All tests passed! :tada:"
-              : ":x: Some tests failed. Please check the details.";
+        run: |
+          gem install octokit
+          ruby -e "
+          require 'octokit'
 
-            // สร้างคอมเมนต์เฉพาะใน Pull Request
-            if (context.payload.pull_request) {
-              github.rest.issues.createComment({
-                issue_number: context.payload.pull_request.number,
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                body: comment,
-              });
-            } else {
-              console.log(comment);
-            }
+          passed = ENV['OUTCOME'] == 'success'
+          comment = passed ? ':white_check_mark: All tests passed! :tada:' : ':x: Some tests failed. Please check the details.'
 
-      - name: Keep screenshots from failed system tests
-        uses: actions/upload-artifact@v4
-        if: failure()
-        with:
-          name: screenshots
-          path: ${{ github.workspace }}/tmp/screenshots
-          if-no-files-found: ignore
+          pr_number = ENV['GITHUB_REF'].match(/refs\/pull\/(\d+)\/merge/)&.captures&.first
+
+          if pr_number
+            client = Octokit::Client.new(access_token: ENV['GITHUB_TOKEN'])
+            client.add_comment(ENV['GITHUB_REPOSITORY'], pr_number, comment)
+          else
+            puts comment
+          end
+          "
+        env:
+          OUTCOME: ${{ steps.test-results.outcome }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REF: ${{ github.ref }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
