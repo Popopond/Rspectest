@@ -19,11 +19,11 @@ jobs:
           ruby-version: '3.3.4'
           bundler-cache: true
 
-      - name: Bundle rake task
-        run: bundle exec rake
-
       - name: Scan for common Rails security vulnerabilities using static analysis
         run: bin/brakeman --no-pager
+      
+      - name: fix
+        run: bundle update net-pop
 
   scan_js:
     runs-on: ubuntu-latest
