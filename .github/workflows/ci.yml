@@ -18,6 +18,8 @@ jobs:
         with:
           ruby-version: '3.3.4'
           bundler-cache: true
+
+      - name: Bundle rake task
         run: bundle exec rake
 
       - name: Scan for common Rails security vulnerabilities using static analysis
